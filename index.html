@@ -1,23 +1,168 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Conversor para CSV</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Conversor de Lista para CSV</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f4f6f9;
+    padding:20px;
+}
+
+h2{
+    color:#222;
+}
+
+textarea{
+    width:100%;
+    height:180px;
+    margin-bottom:15px;
+    padding:10px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+
+button{
+    padding:10px 15px;
+    margin:5px 5px 5px 0;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.btn-gerar{background:#2563eb;color:white;}
+.btn-copiar{background:#16a34a;color:white;}
+.btn-baixar{background:#9333ea;color:white;}
+
+table{
+    width:100%;
+    margin-top:20px;
+    border-collapse: collapse;
+    background:white;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:left;
+}
+
+th{
+    background:#2563eb;
+    color:white;
+}
+</style>
 </head>
+
 <body>
 
-  <h2>Conversor de Lista para CSV</h2>
+<h2>Conversor de Lista para CSV</h2>
 
-  <textarea id="inputText" placeholder="Cole aqui a lista com Agência | Conta | Banco"></textarea>
+<label>Cole a lista aqui:</label>
+<textarea id="entrada" placeholder="Cole a lista com | e &quot; aqui..."></textarea>
 
-  <button onclick="converter()">Converter</button>
-  <button onclick="copiarCSV()">Copiar CSV</button>
-  <button onclick="baixarCSV()">Baixar CSV</button>
+<button class="btn-gerar" onclick="gerarCSV()">Gerar CSV</button>
+<button class="btn-copiar" onclick="copiarCSV()">Copiar CSV</button>
+<button class="btn-baixar" onclick="baixarCSV()">Baixar .csv</button>
 
-  <h3>Resultado CSV:</h3>
-  <textarea id="outputText" readonly></textarea>
+<h3>Resultado em Tabela</h3>
+<div id="tabela"></div>
 
-  <script src="script.js"></script>
+<h3>Resultado CSV</h3>
+<textarea id="saidaCSV" readonly></textarea>
+
+<script>
+
+let csvFinal = "";
+
+function limparTexto(texto){
+    return texto.replace(/[|"']/g,"").trim();
+}
+
+function gerarCSV(){
+
+    let entrada = document.getElementById("entrada").value;
+    let linhas = entrada.split("\n");
+    
+    let resultado = [];
+    let tabelaHTML = `
+    <table>
+    <tr>
+    <th>Nome</th>
+    <th>CPF</th>
+    <th>Telefone</th>
+    <th>Endereço</th>
+    <th>Banco</th>
+    <th>Agência</th>
+    <th>Conta</th>
+    </tr>`;
+
+    resultado.push("Nome,CPF,Telefone,Endereco,Banco,Agencia,Conta");
+
+    linhas.forEach(linha => {
+
+        if(linha.trim() === "") return;
+
+        linha = limparTexto(linha);
+        let partes = linha.split(",");
+
+        let nome = partes[0] || "";
+        let cpf = partes[1] || "";
+        let telefone = partes[2] || "";
+        let endereco = partes[3] || "";
+        let banco = partes[4] || "";
+        let agencia = partes[5] || "";
+        let conta = partes[6] || "";
+
+        resultado.push(`${nome},${cpf},${telefone},${endereco},${banco},${agencia},${conta}`);
+
+        tabelaHTML += `
+        <tr>
+        <td>${nome}</td>
+        <td>${cpf}</td>
+        <td>${telefone}</td>
+        <td>${endereco}</td>
+        <td>${banco}</td>
+        <td>${agencia}</td>
+        <td>${conta}</td>
+        </tr>`;
+    });
+
+    tabelaHTML += "</table>";
+
+    csvFinal = resultado.join("\n");
+    document.getElementById("saidaCSV").value = csvFinal;
+    document.getElementById("tabela").innerHTML = tabelaHTML;
+}
+
+function copiarCSV(){
+    if(!csvFinal){
+        alert("Gere o CSV primeiro.");
+        return;
+    }
+
+    navigator.clipboard.writeText(csvFinal)
+    .then(() => alert("CSV copiado com sucesso!"))
+    .catch(() => alert("Erro ao copiar."));
+}
+
+function baixarCSV(){
+    if(!csvFinal){
+        alert("Gere o CSV primeiro.");
+        return;
+    }
+
+    let blob = new Blob([csvFinal], { type: "text/csv;charset=utf-8;" });
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "clientes.csv";
+    link.click();
+}
+
+</script>
+
 </body>
 </html>
