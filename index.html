@@ -1,168 +1,33 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Conversor de Lista para CSV - Advocacia</title>
-
-<style>
-body{
-    font-family: Arial;
-    background:#f4f6f9;
-    padding:20px;
-}
-
-h1{
-    text-align:center;
-}
-
-textarea{
-    width:100%;
-    height:150px;
-    margin-bottom:15px;
-}
-
-input{
-    padding:6px;
-    margin:5px;
-}
-
-button{
-    padding:8px 12px;
-    border:none;
-    border-radius:5px;
-    cursor:pointer;
-    margin:5px 0;
-}
-
-.btn{
-    background:#1e73be;
-    color:white;
-}
-
-.btn-green{
-    background:#25D366;
-    color:white;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:20px;
-    background:white;
-}
-
-th, td{
-    border:1px solid #ddd;
-    padding:8px;
-    text-align:center;
-    font-size:13px;
-}
-
-th{
-    background:#1e73be;
-    color:white;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Gerador CSV Clientes</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<h1>Gerador de CSV - Escritório</h1>
+  <h2>Gerador de Lista para CSV</h2>
 
-<h3>1️⃣ Cole a lista (cada dado separado por ; ou por linha)</h3>
-<textarea id="lista" placeholder="Cole aqui os dados..."></textarea>
+  <label>Nome do Cliente:</label>
+  <input type="text" id="nomeCliente">
 
-<h3>2️⃣ Defina as colunas (separadas por ;)</h3>
-<input type="text" id="colunas" 
-value="telefone;cpf;nome;nascimento;sexo;cidade;estado;cep;instituicao;agencia;conta;observacao">
+  <label>CPF:</label>
+  <input type="text" id="cpfCliente">
 
-<br>
-<button class="btn" onclick="gerarTabela()">Gerar Tabela</button>
+  <label>Telefone:</label>
+  <input type="text" id="telefoneCliente">
 
-<div id="tabelaContainer"></div>
+  <label>Lista (uma linha por registro):</label>
+  <textarea id="listaInput" rows="8"></textarea>
 
-<br>
-<button class="btn-green" onclick="exportarCSV()">Exportar CSV</button>
+  <button onclick="gerarCSV()">Gerar CSV</button>
+  <button onclick="copiarCSV()">Copiar CSV</button>
+  <button onclick="baixarCSV()">Baixar CSV</button>
 
-<script>
+  <h3>Resultado:</h3>
+  <textarea id="resultadoCSV" rows="10" readonly></textarea>
 
-let dadosCSV = [];
-
-function gerarTabela(){
-
-    const texto = document.getElementById("lista").value.trim();
-    const colunas = document.getElementById("colunas").value.trim();
-
-    if(!texto){
-        alert("Cole a lista primeiro.");
-        return;
-    }
-
-    const linhas = texto.split("\n");
-    const cabecalho = colunas.split(";");
-
-    dadosCSV = [];
-    dadosCSV.push(cabecalho);
-
-    let tabela = "<table><tr>";
-
-    cabecalho.forEach(col => {
-        tabela += `<th>${col}</th>`;
-    });
-
-    tabela += "</tr>";
-
-    linhas.forEach(linha => {
-
-        let valores = linha.split(";");
-        tabela += "<tr>";
-
-        let linhaFinal = [];
-
-        cabecalho.forEach((_, i) => {
-
-            let valor = valores[i] ? valores[i].trim() : "";
-            linhaFinal.push(valor);
-
-            tabela += `<td contenteditable="true">${valor}</td>`;
-        });
-
-        dadosCSV.push(linhaFinal);
-        tabela += "</tr>";
-    });
-
-    tabela += "</table>";
-    document.getElementById("tabelaContainer").innerHTML = tabela;
-}
-
-function exportarCSV(){
-
-    let csvFinal = "";
-
-    const tabela = document.querySelectorAll("table tr");
-
-    tabela.forEach((linha, i) => {
-
-        let colunas = linha.querySelectorAll("th, td");
-        let linhaCSV = [];
-
-        colunas.forEach(col => {
-            linhaCSV.push(col.innerText.trim());
-        });
-
-        csvFinal += linhaCSV.join(";") + "\n";
-    });
-
-    const blob = new Blob([csvFinal], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-
-    link.href = URL.createObjectURL(blob);
-    link.download = "lista_clientes.csv";
-    link.click();
-}
-
-</script>
-
+  <script src="script.js"></script>
 </body>
 </html>
