@@ -1,43 +1,49 @@
-let csvFinal = "";
+function converter() {
+  let input = document.getElementById("inputText").value;
 
-function limparTexto(texto) {
-  return texto
-    .replace(/\|/g, ";")        // troca | por ;
-    .replace(/"/g, "'")         // troca " por '
-    .trim();
-}
+  if (!input.trim()) {
+    alert("Cole a lista primeiro.");
+    return;
+  }
 
-function gerarCSV() {
-  const nome = limparTexto(document.getElementById("nomeCliente").value);
-  const cpf = limparTexto(document.getElementById("cpfCliente").value);
-  const telefone = limparTexto(document.getElementById("telefoneCliente").value);
-
-  const linhas = document.getElementById("listaInput").value.split("\n");
-
-  let resultado = "Nome,CPF,Telefone,Informacao\n";
+  let linhas = input.split("\n");
+  let csvFinal = "Agencia,Conta,Banco\n";
 
   linhas.forEach(linha => {
-    if (linha.trim() !== "") {
-      const info = limparTexto(linha);
-      resultado += `${nome},${cpf},${telefone},${info}\n`;
-    }
+    linha = linha.replace(/["]/g, "");   // remove "
+    linha = linha.replace(/[|]/g, ",");  // troca | por vírgula
+    csvFinal += linha.trim() + "\n";
   });
 
-  csvFinal = resultado;
-  document.getElementById("resultadoCSV").value = resultado;
+  document.getElementById("outputText").value = csvFinal;
 }
 
 function copiarCSV() {
-  const area = document.getElementById("resultadoCSV");
-  area.select();
+  let output = document.getElementById("outputText");
+
+  if (!output.value.trim()) {
+    alert("Nada para copiar.");
+    return;
+  }
+
+  output.select();
   document.execCommand("copy");
+
   alert("CSV copiado com sucesso!");
 }
 
 function baixarCSV() {
-  const blob = new Blob([csvFinal], { type: "text/csv" });
-  const link = document.createElement("a");
+  let csv = document.getElementById("outputText").value;
+
+  if (!csv.trim()) {
+    alert("Nada para baixar.");
+    return;
+  }
+
+  let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  let link = document.createElement("a");
+
   link.href = URL.createObjectURL(blob);
-  link.download = "clientes.csv";
+  link.download = "lista_convertida.csv";
   link.click();
 }
